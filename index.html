@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Trading Bot Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Trading Bot</h2>
+                <div class="status-indicator" id="systemStatus">
+                    <span class="status-dot active"></span>
+                    <span>Online</span>
+                </div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="#" data-page="overview" class="nav-link active">Overview</a></li>
+                <li><a href="#" data-page="live-trading" class="nav-link">Live Trading</a></li>
+                <li><a href="#" data-page="portfolio" class="nav-link">Portfolio</a></li>
+                <li><a href="#" data-page="risk-management" class="nav-link">Risk Management</a></li>
+                <li><a href="#" data-page="performance" class="nav-link">Performance</a></li>
+                <li><a href="#" data-page="settings" class="nav-link">Settings</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Overview Page -->
+            <div id="overview" class="page active">
+                <header class="page-header">
+                    <h1>Overview</h1>
+                    <div class="last-update">Last updated: <span id="lastUpdate">--</span></div>
+                </header>
+
+                <!-- Key Metrics Cards -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Total Balance</h3>
+                        </div>
+                        <div class="metric-value">$<span id="totalBalance">125,000.00</span></div>
+                        <div class="metric-change positive">Available: $<span id="availableBalance">98,500.00</span></div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Daily PnL</h3>
+                        </div>
+                        <div class="metric-value positive">$<span id="dailyPnl">1,250.50</span></div>
+                        <div class="metric-change positive">+1.00%</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Open Positions</h3>
+                        </div>
+                        <div class="metric-value"><span id="openPositions">2</span></div>
+                        <div class="metric-change">Active</div>
+                    </div>
+                    
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3>Success Rate</h3>
+                        </div>
+                        <div class="metric-value"><span id="successRate">65</span>%</div>
+                        <div class="metric-change positive">↑ 2%</div>
+                    </div>
+                </div>
+
+                <!-- Price Chart -->
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <h3>BTCUSDT Price Chart</h3>
+                        <select id="symbolSelect" class="form-control">
+                            <option value="BTCUSDT">BTCUSDT</option>
+                            <option value="ETHUSDT">ETHUSDT</option>
+                            <option value="BNBUSDT">BNBUSDT</option>
+                        </select>
+                    </div>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Trades and System Status -->
+                <div class="two-column">
+                    <div class="recent-trades">
+                        <h3>Recent Trades</h3>
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Symbol</th>
+                                        <th>Side</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>PnL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentTradesTable">
+                                    <!-- Populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="system-status">
+                        <h3>System Status</h3>
+                        <div class="status-list">
+                            <div class="status-item">
+                                <span class="status-dot active"></span>
+                                <span>API Connection</span>
+                                <span class="status-value">Connected</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot active"></span>
+                                <span>WebSocket</span>
+                                <span class="status-value">Connected</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot active"></span>
+                                <span>Database</span>
+                                <span class="status-value">Healthy</span>
+                            </div>
+                            <div class="status-item">
+                                <span class="status-dot"></span>
+                                <span>Uptime</span>
+                                <span class="status-value">2d 14h 32m</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Trading Page -->
+            <div id="live-trading" class="page">
+                <header class="page-header">
+                    <h1>Live Trading</h1>
+                    <button class="btn btn--primary" id="emergencyStop">Emergency Stop</button>
+                </header>
+
+                <div class="trading-grid">
+                    <!-- Active Strategies -->
+                    <div class="strategies-panel">
+                        <h3>Active Strategies</h3>
+                        <div id="strategiesContainer">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Order Book -->
+                    <div class="orderbook-panel">
+                        <h3>Order Book - <span id="obSymbol">BTCUSDT</span></h3>
+                        <div class="orderbook">
+                            <div class="orderbook-side">
+                                <h4>Asks</h4>
+                                <div id="asks">
+                                    <div class="order-row ask"><span>45,260.00</span><span>0.150</span></div>
+                                    <div class="order-row ask"><span>45,255.00</span><span>0.250</span></div>
+                                    <div class="order-row ask"><span>45,250.50</span><span>0.100</span></div>
+                                </div>
+                            </div>
+                            <div class="spread">
+                                <span>Spread: $5.00</span>
+                            </div>
+                            <div class="orderbook-side">
+                                <h4>Bids</h4>
+                                <div id="bids">
+                                    <div class="order-row bid"><span>45,245.50</span><span>0.200</span></div>
+                                    <div class="order-row bid"><span>45,240.00</span><span>0.180</span></div>
+                                    <div class="order-row bid"><span>45,235.00</span><span>0.300</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manual Trading -->
+                    <div class="manual-trading">
+                        <h3>Manual Trading</h3>
+                        <div class="trading-form">
+                            <div class="form-group">
+                                <label class="form-label">Symbol</label>
+                                <select class="form-control">
+                                    <option>BTCUSDT</option>
+                                    <option>ETHUSDT</option>
+                                    <option>BNBUSDT</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Quantity</label>
+                                <input type="number" class="form-control" placeholder="0.001" step="0.001">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Price</label>
+                                <input type="number" class="form-control" placeholder="Market Price">
+                            </div>
+                            <div class="trading-buttons">
+                                <button class="btn btn--primary buy-btn">BUY</button>
+                                <button class="btn btn--outline sell-btn">SELL</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Open Orders -->
+                <div class="orders-section">
+                    <h3>Open Orders</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Symbol</th>
+                                    <th>Side</th>
+                                    <th>Type</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>12345678</td>
+                                    <td>BTCUSDT</td>
+                                    <td class="positive">BUY</td>
+                                    <td>LIMIT</td>
+                                    <td>0.1</td>
+                                    <td>$44,500</td>
+                                    <td><span class="status status--info">PENDING</span></td>
+                                    <td><button class="btn btn--sm btn--outline">Cancel</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Page -->
+            <div id="portfolio" class="page">
+                <header class="page-header">
+                    <h1>Portfolio</h1>
+                    <button class="btn btn--outline">Export CSV</button>
+                </header>
+
+                <div class="portfolio-summary">
+                    <div class="metric-card">
+                        <h3>Total Value</h3>
+                        <div class="metric-value">$<span id="portfolioTotal">125,000.00</span></div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Available</h3>
+                        <div class="metric-value">$<span id="portfolioAvailable">98,500.00</span></div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Locked</h3>
+                        <div class="metric-value">$<span id="portfolioLocked">26,500.00</span></div>
+                    </div>
+                </div>
+
+                <div class="portfolio-charts">
+                    <div class="chart-section">
+                        <h3>Asset Allocation</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="allocationChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-section">
+                        <h3>Portfolio Value Over Time</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="portfolioChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="balances-section">
+                    <h3>Asset Balances</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Asset</th>
+                                    <th>Free</th>
+                                    <th>Locked</th>
+                                    <th>Total</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody id="balancesTable">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Management Page -->
+            <div id="risk-management" class="page">
+                <header class="page-header">
+                    <h1>Risk Management</h1>
+                    <div class="risk-level-indicator">
+                        <span class="risk-level low">Risk Level: LOW</span>
+                    </div>
+                </header>
+
+                <div class="risk-metrics">
+                    <div class="metric-card">
+                        <h3>Max Drawdown</h3>
+                        <div class="metric-value">8.0%</div>
+                        <div class="metric-change">Current: 2.0%</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Daily Loss Limit</h3>
+                        <div class="metric-value">2.0%</div>
+                        <div class="metric-change positive">Used: 0.1%</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Position Limit</h3>
+                        <div class="metric-value">5.0%</div>
+                        <div class="metric-change">Per trade</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Open Positions</h3>
+                        <div class="metric-value">2 / 10</div>
+                        <div class="metric-change">Max allowed</div>
+                    </div>
+                </div>
+
+                <div class="positions-section">
+                    <h3>Open Positions</h3>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Symbol</th>
+                                    <th>Side</th>
+                                    <th>Quantity</th>
+                                    <th>Entry Price</th>
+                                    <th>Current Price</th>
+                                    <th>Unrealized PnL</th>
+                                    <th>Strategy</th>
+                                </tr>
+                            </thead>
+                            <tbody id="positionsTable">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Page -->
+            <div id="performance" class="page">
+                <header class="page-header">
+                    <h1>Performance Analytics</h1>
+                    <button class="btn btn--outline">Generate Report</button>
+                </header>
+
+                <div class="performance-metrics">
+                    <div class="metric-card">
+                        <h3>Total Return</h3>
+                        <div class="metric-value positive">15.0%</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Sharpe Ratio</h3>
+                        <div class="metric-value">1.8</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Win Rate</h3>
+                        <div class="metric-value positive">65%</div>
+                    </div>
+                    <div class="metric-card">
+                        <h3>Profit Factor</h3>
+                        <div class="metric-value">1.4</div>
+                    </div>
+                </div>
+
+                <div class="performance-charts">
+                    <div class="chart-section">
+                        <h3>Equity Curve</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="equityChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-section">
+                        <h3>Trade Distribution</h3>
+                        <div class="chart-container" style="position: relative; height: 300px;">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="trades-summary">
+                    <h3>Trading Summary</h3>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Trades</span>
+                            <span class="stat-value">156</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Winning Trades</span>
+                            <span class="stat-value positive">101</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Losing Trades</span>
+                            <span class="stat-value negative">55</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settings" class="page">
+                <header class="page-header">
+                    <h1>Settings</h1>
+                    <button class="btn btn--primary" id="saveSettings">Save Settings</button>
+                </header>
+
+                <div class="settings-grid">
+                    <div class="settings-section">
+                        <h3>Strategy Configuration</h3>
+                        <div class="form-group">
+                            <label class="form-label">Risk Per Trade (%)</label>
+                            <input type="number" class="form-control" value="1.0" step="0.1" min="0.1" max="5.0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Max Open Positions</label>
+                            <input type="number" class="form-control" value="10" min="1" max="20">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Daily Loss Limit (%)</label>
+                            <input type="number" class="form-control" value="2.0" step="0.1" min="0.5" max="10.0">
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>API Configuration</h3>
+                        <div class="form-group">
+                            <label class="form-label">API Key</label>
+                            <input type="password" class="form-control" value="************************************" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Secret Key</label>
+                            <input type="password" class="form-control" value="************************************" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Environment</label>
+                            <select class="form-control">
+                                <option value="testnet">Testnet</option>
+                                <option value="mainnet" selected>Mainnet</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>System Controls</h3>
+                        <div class="control-buttons">
+                            <button class="btn btn--primary">Start Trading</button>
+                            <button class="btn btn--outline">Stop Trading</button>
+                            <button class="btn btn--outline">Reset Database</button>
+                            <button class="btn btn--outline">Export Logs</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

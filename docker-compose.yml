@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  trading-bot:
+    build: .
+    environment:
+      - APP_ENV=development
+      - USE_TESTNET=true
+    volumes:
+      - ./.env:/app/.env:ro
+    command: ["python", "main.py", "paper"]
