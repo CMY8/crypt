@@ -41,8 +41,8 @@ crypto_trading_system/
   - performance_metrics.py
 - database/
   - __init__.py
-  - db_manager.py
-  - models.py
+  - db_manager.py       # SQLAlchemy session factory and helpers
+  - models.py           # ORM models + typed record containers
 - monitoring/
   - __init__.py
   - dashboard.py

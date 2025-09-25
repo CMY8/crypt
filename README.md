@@ -9,6 +9,7 @@ A modular framework for building, testing, and monitoring algorithmic cryptocurr
 - Risk engine for exposure checks, drawdown guards, and portfolio accounting
 - Execution layer abstraction for exchange REST endpoints and simulators
 - Monitoring toolkit and front-end dashboard for status, metrics, and alerts
+- SQLAlchemy-backed persistence layer for candles, orders, and trades
 
 ## Repository Layout
 
@@ -21,9 +22,13 @@ See `crypto_trading_system_guide.md` for a detailed, component-by-component over
 
 1. Create and activate a virtual environment.
 2. Populate `config/.env.example` with your Binance API keys (or leave empty to run in mock mode) and copy it to `.env`.
-3. Install dependencies: `pip install -r crypto_trading_system/requirements.txt` (pulls in `python-binance`, `aiohttp`, `websockets`).
+3. Install dependencies: `pip install -r crypto_trading_system/requirements.txt` (pulls in `python-binance`, `aiohttp`, `websockets`, `SQLAlchemy`, `pytest`).
 4. Implement the placeholder modules following the guidance in the implementation guide.
 5. Run `python main.py paper --api-port 8000` to fire up the paper loop and expose live metrics at `http://127.0.0.1:8000/api/dashboard`.
+
+## Testing
+
+- Execute the unit test suite with `pytest` to validate risk controls, portfolio accounting, and execution flow integration hooks.
 
 If the Binance credentials are omitted or the dependency import fails, the system automatically falls back to the built-in simulator for both data and order flow.
 
