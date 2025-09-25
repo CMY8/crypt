@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 from typing import Iterable, List, Optional
 
@@ -38,6 +39,12 @@ class ExecutionEngine:
     def register_strategy(self, strategy: BaseStrategy) -> None:
         self._strategies.append(strategy)
 
+    @property
+    def strategies(self) -> tuple[BaseStrategy, ...]:
+        """Read-only view of registered strategies."""
+
+        return tuple(self._strategies)
+
     async def start(self, symbols: Iterable[str]) -> None:
         self._symbols = list(symbols)
         equity = self._portfolio.mark_to_market(self._marks)
@@ -52,6 +59,8 @@ class ExecutionEngine:
         await self._data_manager.stop_live_stream()
         for strategy in self._strategies:
             await strategy.on_stop()
+        with contextlib.suppress(Exception):
+            await self._orders.close()
 
     async def _handle_tick(self, payload: dict) -> None:
         symbol = payload['symbol']
@@ -83,13 +92,14 @@ class ExecutionEngine:
             price=mark_price,
         )
         result = await self._orders.submit(request)
-        notional = result.filled_quantity * (result.filled_price or mark_price)
+        fill_price = result.filled_price or mark_price
+        notional = result.filled_quantity * fill_price
         if signal.side == 'BUY':
             self._portfolio.update_cash(-notional)
-            self._portfolio.update_position(signal.symbol, result.filled_quantity, mark_price)
+            self._portfolio.update_position(signal.symbol, result.filled_quantity, fill_price)
         else:
             self._portfolio.update_cash(notional)
-            self._portfolio.update_position(signal.symbol, -result.filled_quantity, mark_price)
+            self._portfolio.update_position(signal.symbol, -result.filled_quantity, fill_price)
         logger.info('Executed %s -> %s', signal, result)
 
 
